@@ -1,1 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Park Booking</title>
 
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f7fa;
+        margin: 20px;
+        text-align: center;
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    .booking-form {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+    input, select {
+        padding: 8px;
+        width: 200px;
+        margin-top: 5px;
+    }
+
+    .carpark {
+        display: grid;
+        grid-template-columns: repeat(6, 100px);
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .bay {
+        height: 70px;
+        line-height: 70px;
+        background: #28a745;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .bay:hover {
+        transform: scale(1.05);
+    }
+
+    .occupied {
+        background: #dc3545;
+        cursor: not-allowed;
+    }
+
+    .selected {
+        background: #ffc107;
+        color: black;
+    }
+
+    .summary {
+        margin-top: 20px;
+        padding: 15px;
+        background: white;
+        border-radius: 10px;
+        display: inline-block;
+        min-width: 350px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .book-btn {
+        margin-top: 15px;
+        padding: 10px 25px;
+        background: #0078d4;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .book-btn:hover {
+        background: #005ea6;
+    }
+</style>
+</head>
+<body>
+
+<h1>Car Park Booking System</h1>
+
+<div class="booking-form">
+    <label for="bookingDate">Booking Date</label>
+    <input type="date" id="bookingDate">
+
+    <label for="duration">Duration</label>
+    <select id="duration">
+        <option value="1 Hour">1 Hour</option>
+        <option value="2 Hours">2 Hours</option>
+        <option value="4 Hours">4 Hours</option>
+        <option value="8 Hours">Full Day</option>
+    </select>
+</div>
+
+<h2>Select a Parking Bay</h2>
+
+<div class="carpark" id="carpark"></div>
+
+<div class="summary">
+    <h3>Booking Summary</h3>
+    <p><strong>Bay:</strong> <span id="selectedBay">None</span></p>
+    <p><strong>Date:</strong> <span id="selectedDate">Not Selected</span></p>
+    <p><strong>Duration:</strong> <span id="selectedDuration">Not Selected</span></p>
+
+    <button class="book-btn" onclick="confirmBooking()">Book Bay</button>
+</div>
+
+<script>
+let selectedBay = null;
+
+const carpark = document.getElementById('carpark');
+
+// Generate 39 bays
+for(let i = 1; i <= 39; i++) {
+    const bay = document.createElement('div');
+    bay.classList.add('bay');
+    bay.innerText = i;
+    bay.dataset.bay = i;
+
+    bay.addEventListener('click', () => {
+        if(bay.classList.contains('occupied')) return;
+
+        document.querySelectorAll('.bay').forEach(b => {
+            if(!b.classList.contains('occupied')) {
+                b.classList.remove('selected');
+            }
+        });
+
+        bay.classList.add('selected');
+        selectedBay = i;
+
+        document.getElementById('selectedBay').innerText = i;
+        document.getElementById('selectedDate').innerText =
+            document.getElementById('bookingDate').value || "Not Selected";
+        document.getElementById('selectedDuration').innerText =
+            document.getElementById('duration').value;
+    });
+
+    carpark.appendChild(bay);
+}
+
+document.getElementById('bookingDate').addEventListener('change', updateSummary);
+document.getElementById('duration').addEventListener('change', updateSummary);
+
+function updateSummary() {
+    document.getElementById('selectedDate').innerText =
+        document.getElementById('bookingDate').value || "Not Selected";
+
+    document.getElementById('selectedDuration').innerText =
+        document.getElementById('duration').value;
+}
+
+function confirmBooking() {
+
+    const date = document.getElementById("bookingDate").value;
+    const duration = document.getElementById("duration").value;
+
+    if(!date) {
+        alert("Please select a booking date.");
+        return;
+    }
+
+    if(!selectedBay) {
+        alert("Please select a parking bay.");
+        return;
+    }
+
+    const bayElement = document.querySelector(
+        `.bay[data-bay="${selectedBay}"]`
+    );
+
+    bayElement.classList.remove('selected');
+    bayElement.classList.add('occupied');
+
+    alert(
+        `Booking Confirmed!\n\nBay: ${selectedBay}\nDate: ${date}\nDuration: ${duration}`
+    );
+
+    selectedBay = null;
+    document.getElementById('selectedBay').innerText = "None";
+}
+</script>
+
+</body>
+</html>
